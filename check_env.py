@@ -88,10 +88,18 @@ def main() -> int:
         for i in range(torch.cuda.device_count()):
             p = torch.cuda.get_device_properties(i)
             want = f"sm_{p.major}{p.minor}"
+            want_major = f"sm_{p.major}"
             if arch_list and want not in arch_list:
-                print(f"  !! {want} is NOT in this torch build's arch list.")
-                print(f"     This wheel will refuse to run on GPU {i}.")
-                supported = False
+                # PTX is forward-compatible within the same major arch.
+                # sm_50 PTX covers sm_50 / sm_52 / sm_53 (all Maxwell).
+                # sm_60 PTX covers sm_60 / sm_61 / sm_62 (all Pascal), etc.
+                any_major = any(a.startswith(want_major) for a in arch_list)
+                if any_major:
+                    print(f"  {want} not in arch list, but {want_major} PTX covers it. OK.")
+                else:
+                    print(f"  !! {want} is NOT in this torch build's arch list.")
+                    print(f"     No {want_major} kernels at all — this wheel cannot run on GPU {i}.")
+                    supported = False
     except Exception as exc:  # older/newer torch, or no device query support
         print(f"(arch list unavailable: {exc})")
 
