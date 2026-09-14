@@ -1,0 +1,8 @@
+# Torch is installed separately from the CUDA 12.6 wheel index - see README.md.
+# Everything below is pure Python and needs no special GPU kernels.
+transformers>=4.46
+datasets>=3.0
+accelerate>=0.34
+scikit-learn>=1.4
+numpy>=1.26
+psutil>=5.9

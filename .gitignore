@@ -1,0 +1,7 @@
+.venv/
+.devbox/
+__pycache__/
+*.pyc
+runs/
+# Regenerable via `python fetch_data.py --lang sk` (~2.8 GB download)
+data/sk/*.parquet

@@ -1,0 +1,51 @@
+{
+    "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.16.0/.schema/devbox.schema.json",
+    "packages": [
+      "python@3.12",
+      "python312Packages.pip@latest",
+      "uv",
+      "git@latest",
+      "gum@latest",
+      "gcc-unwrapped.lib",
+      "libgcc",
+      "zlib"
+    ],
+    "env": {
+      "VENV_DIR": ".venv",
+      "LD_LIBRARY_PATH": "$DEVBOX_PACKAGES_DIR/lib",
+      "TOKENIZERS_PARALLELISM": "false"
+    },
+    "shell": {
+      "init_hook": [
+        ". $VENV_DIR/bin/activate",
+        "python -c 'import torch' 2>/dev/null && echo 'devbox: torch present' || echo 'devbox: NOT set up -> run setup-cpu (laptop) or setup-cuda (M6000 box)'"
+      ],
+      "scripts": {
+        "setup-cpu": [
+          "uv pip install torch --index-url https://download.pytorch.org/whl/cpu",
+          "uv pip install -r requirements.txt",
+          "python -c \"import torch; print('torch', torch.__version__, '| cuda', torch.cuda.is_available())\""
+        ],
+        "setup-cuda": [
+          "uv pip install 'torch==2.7.1' --index-url https://download.pytorch.org/whl/cu126 || uv pip install 'torch==2.6.0' --index-url https://download.pytorch.org/whl/cu126",
+          "uv pip install -r requirements.txt",
+          "python -c \"import torch; print('torch', torch.__version__, '| built for CUDA', torch.version.cuda)\""
+        ],
+        "fetch-data": [
+          "python fetch_data.py --lang sk"
+        ],
+        "check": [
+          "python check_env.py"
+        ],
+        "smoke": [
+          "python train.py --smoke"
+        ],
+        "train": [
+          "python train.py --epochs 8"
+        ],
+        "predict": [
+          "python predict.py"
+        ]
+      }
+    }
+  }
